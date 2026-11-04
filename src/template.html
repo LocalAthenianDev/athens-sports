@@ -147,7 +147,8 @@ L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{
 const dkStyle = {color:css("--dk"),weight:2.5,opacity:1,fillColor:css("--dk"),fillOpacity:.03};
 const dkHover = {weight:4,fillOpacity:.12};
 /* Μάσκα: σβήνει ό,τι είναι έξω από τον Δήμο */
-const holes = DK.features.flatMap(f=>f.geometry.coordinates.map(poly=>poly[0].map(([x,y])=>[y,x])));
+const outerRings = g => g.type==="Polygon" ? [g.coordinates[0]] : g.coordinates.map(p=>p[0]);
+const holes = DK.features.flatMap(f=>outerRings(f.geometry).map(r=>r.map(([x,y])=>[y,x])));
 L.polygon([[[-89,-179],[-89,179],[89,179],[89,-179]],...holes],
   {stroke:false,fillColor:css("--bg"),fillOpacity:.6,interactive:false}).addTo(map);
 /* Λευκό περίγραμμα κάτω από τα όρια για να ξεχωρίζουν πάνω στον χάρτη */
