@@ -13,17 +13,17 @@
 :root{
   --bg:#f3f4f2; --panel:#ffffff; --ink:#1d2427; --muted:#5d686c; --line:#dde1df;
   --open:#c8553d; --pool:#1f7a99; --hall:#a8781f; --focus:#1d2427;
-  --tiles:grayscale(1) brightness(1.06) contrast(.88);
+  --tiles:saturate(.75) brightness(1.03) contrast(.92);
   --dk:#1e3a8a; --halo:#ffffff;
   --display:"Fira Sans Condensed","Arial Narrow",sans-serif;
   --body:"Commissioner",system-ui,sans-serif;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#151a1c; --panel:#1d2427; --ink:#e9ecea; --muted:#9aa6aa; --line:#2f383b;
-  --open:#e2735c; --pool:#4fa9c9; --hall:#d2a248; --focus:#e9ecea; --dk:#9db4ff; --halo:#151a1c; --tiles:grayscale(1) invert(1) brightness(.85) contrast(.85); color-scheme:dark}}
+  --open:#e2735c; --pool:#4fa9c9; --hall:#d2a248; --focus:#e9ecea; --dk:#9db4ff; --halo:#151a1c; --tiles:invert(1) hue-rotate(180deg) saturate(.6) brightness(.85) contrast(.9); color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#151a1c; --panel:#1d2427; --ink:#e9ecea; --muted:#9aa6aa; --line:#2f383b;
-  --open:#e2735c; --pool:#4fa9c9; --hall:#d2a248; --focus:#e9ecea; --dk:#9db4ff; --halo:#151a1c; --tiles:grayscale(1) invert(1) brightness(.85) contrast(.85); color-scheme:dark}
+  --open:#e2735c; --pool:#4fa9c9; --hall:#d2a248; --focus:#e9ecea; --dk:#9db4ff; --halo:#151a1c; --tiles:invert(1) hue-rotate(180deg) saturate(.6) brightness(.85) contrast(.9); color-scheme:dark}
 html,body{height:100%;margin:0}
 body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);display:grid;grid-template-columns:380px 1fr}
 aside{background:var(--panel);border-right:1px solid var(--line);overflow-y:auto;
@@ -68,10 +68,10 @@ footer{margin-top:auto;font-size:12px;color:var(--muted)}
 footer a{color:inherit}
 .leaflet-popup-content{font:14px/1.45 var(--body)}
 .leaflet-popup-content b{font-weight:600}
-/* Το φίλτρο μπαίνει σε κάθε πλακίδιο: το Safari στο iPhone αγνοεί συχνά filter σε γονικό στοιχείο με 3D transforms */
-.basemap .leaflet-tile{-webkit-filter:grayscale(1) brightness(1.06) contrast(.88);filter:grayscale(1) brightness(1.06) contrast(.88)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .basemap .leaflet-tile{-webkit-filter:grayscale(1) invert(1) brightness(.85) contrast(.85);filter:grayscale(1) invert(1) brightness(.85) contrast(.85)}}
-:root[data-theme="dark"] .basemap .leaflet-tile{-webkit-filter:grayscale(1) invert(1) brightness(.85) contrast(.85);filter:grayscale(1) invert(1) brightness(.85) contrast(.85)}
+/* Χρωματιστό υπόβαθρο, ελαφρά απαλυμένο ώστε να ξεχωρίζουν τα δεδομένα. Το φίλτρο μπαίνει σε κάθε πλακίδιο: το Safari στο iPhone αγνοεί συχνά filter σε γονικό στοιχείο με 3D transforms */
+.basemap .leaflet-tile{-webkit-filter:saturate(.75) brightness(1.03) contrast(.92);filter:saturate(.75) brightness(1.03) contrast(.92)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .basemap .leaflet-tile{-webkit-filter:invert(1) hue-rotate(180deg) saturate(.6) brightness(.85) contrast(.9);filter:invert(1) hue-rotate(180deg) saturate(.6) brightness(.85) contrast(.9)}}
+:root[data-theme="dark"] .basemap .leaflet-tile{-webkit-filter:invert(1) hue-rotate(180deg) saturate(.6) brightness(.85) contrast(.9);filter:invert(1) hue-rotate(180deg) saturate(.6) brightness(.85) contrast(.9)}
 .pin{border-radius:50%;border:2px solid var(--halo);box-shadow:0 1px 3px rgba(0,0,0,.35)}
 .pin.multi{outline:2px solid var(--ink)}
 @media (max-width:760px){
