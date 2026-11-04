@@ -13,16 +13,17 @@
 :root{
   --bg:#f3f4f2; --panel:#ffffff; --ink:#1d2427; --muted:#5d686c; --line:#dde1df;
   --open:#c8553d; --pool:#1f7a99; --hall:#a8781f; --focus:#1d2427;
-  --tiles:none;
+  --tiles:grayscale(1) brightness(1.06) contrast(.88);
+  --dk:#1e3a8a; --halo:#ffffff;
   --display:"Fira Sans Condensed","Arial Narrow",sans-serif;
   --body:"Commissioner",system-ui,sans-serif;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#151a1c; --panel:#1d2427; --ink:#e9ecea; --muted:#9aa6aa; --line:#2f383b;
-  --open:#e2735c; --pool:#4fa9c9; --hall:#d2a248; --focus:#e9ecea; --tiles:invert(1) hue-rotate(180deg) brightness(.9) contrast(.85) saturate(.6); color-scheme:dark}}
+  --open:#e2735c; --pool:#4fa9c9; --hall:#d2a248; --focus:#e9ecea; --dk:#9db4ff; --halo:#151a1c; --tiles:grayscale(1) invert(1) brightness(.85) contrast(.85); color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#151a1c; --panel:#1d2427; --ink:#e9ecea; --muted:#9aa6aa; --line:#2f383b;
-  --open:#e2735c; --pool:#4fa9c9; --hall:#d2a248; --focus:#e9ecea; --tiles:invert(1) hue-rotate(180deg) brightness(.9) contrast(.85) saturate(.6); color-scheme:dark}
+  --open:#e2735c; --pool:#4fa9c9; --hall:#d2a248; --focus:#e9ecea; --dk:#9db4ff; --halo:#151a1c; --tiles:grayscale(1) invert(1) brightness(.85) contrast(.85); color-scheme:dark}
 html,body{height:100%;margin:0}
 body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);display:grid;grid-template-columns:380px 1fr}
 aside{background:var(--panel);border-right:1px solid var(--line);overflow-y:auto;
@@ -53,7 +54,7 @@ th,td{padding:6px 4px;text-align:right;border-bottom:1px solid var(--line)}
 th:first-child,td:first-child{text-align:left}
 th{font:600 12px var(--display);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
 td.zero{color:var(--open);font-weight:600}
-.dklabel{background:transparent;border:0;box-shadow:none;font:800 18px var(--display);color:var(--ink);opacity:.55;text-shadow:0 0 3px var(--bg)}
+.dklabel{background:transparent;border:0;box-shadow:none;font:800 22px var(--display);color:var(--dk);text-shadow:0 0 3px var(--halo),0 0 3px var(--halo),0 0 6px var(--halo)}
 .dklabel::before{display:none}
 #dk tbody tr{cursor:pointer}
 #dk tbody tr:hover td,#dk tbody tr.act td{background:color-mix(in srgb,var(--ink) 6%,transparent)}
@@ -68,7 +69,7 @@ footer a{color:inherit}
 .leaflet-popup-content{font:14px/1.45 var(--body)}
 .leaflet-popup-content b{font-weight:600}
 .leaflet-tile-pane{filter:var(--tiles)}
-.pin{border-radius:50%;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.35)}
+.pin{border-radius:50%;border:2px solid var(--halo);box-shadow:0 1px 3px rgba(0,0,0,.35)}
 .pin.multi{outline:2px solid var(--ink)}
 @media (max-width:760px){
   body{grid-template-columns:1fr;grid-template-rows:55vh auto;height:auto}
@@ -143,12 +144,19 @@ L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{
   });
 
 /* Δημοτικές Κοινότητες */
-const dkStyle = {color:css("--ink"),weight:1.5,opacity:.55,fillColor:css("--ink"),fillOpacity:.02,dashArray:"4 4"};
+const dkStyle = {color:css("--dk"),weight:2.5,opacity:1,fillColor:css("--dk"),fillOpacity:.03};
+const dkHover = {weight:4,fillOpacity:.12};
+/* Μάσκα: σβήνει ό,τι είναι έξω από τον Δήμο */
+const holes = DK.features.flatMap(f=>f.geometry.coordinates.map(poly=>poly[0].map(([x,y])=>[y,x])));
+L.polygon([[[-89,-179],[-89,179],[89,179],[89,-179]],...holes],
+  {stroke:false,fillColor:css("--bg"),fillOpacity:.6,interactive:false}).addTo(map);
+/* Λευκό περίγραμμα κάτω από τα όρια για να ξεχωρίζουν πάνω στον χάρτη */
+L.geoJSON(DK,{style:{color:css("--halo"),weight:6,opacity:.9,fill:false},interactive:false}).addTo(map);
 const dkByNo = {};
 const dkLayer = L.geoJSON(DK,{style:dkStyle,onEachFeature:(f,l)=>{
   const no=f.properties.no; dkByNo[no]=l;
   l.bindTooltip(no+"η",{permanent:true,direction:"center",className:"dklabel"});
-  l.on("mouseover",()=>{l.setStyle({weight:3,opacity:.9,fillOpacity:.07,dashArray:null}); rowAct(no,true); showInfo(no);});
+  l.on("mouseover",()=>{l.setStyle(dkHover); l.bringToFront(); rowAct(no,true); showInfo(no);});
   l.on("mouseout",()=>{dkLayer.resetStyle(l); rowAct(no,false); document.getElementById("dkinfo").textContent=infoDefault;});
 }}).addTo(map);
 function showInfo(no){
@@ -178,7 +186,7 @@ function draw(){
   sites.forEach(s=>{
     const vis = siteVisible(s); if(!vis.length) return;
     const main = vis.find(i=>i.c==="pool") || vis.find(i=>i.c==="hall") || vis[0];
-    const size = vis.length>1 ? 20 : 14;
+    const size = vis.length>1 ? 24 : 16;
     const icon = L.divIcon({className:"", iconSize:[size,size],
       html:`<div class="pin${vis.length>1?" multi":""}" style="width:${size}px;height:${size}px;background:${color(main.c)}"></div>`});
     L.marker(s.p,{icon, title:vis.map(i=>i.n).join(", ")}).bindPopup(popup(vis)).addTo(layer);
