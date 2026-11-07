@@ -171,12 +171,15 @@ function showInfo(no){
 }
 function rowAct(no,v){const r=document.getElementById("dk-"+no); if(r) r.classList.toggle("act",v);}
 
-/* Ομαδοποίηση υποδομών στο ίδιο σημείο (π.χ. Γκράβα, Γουδή) σε συγκρότημα */
+/* Ομαδοποίηση: σε μία κουκκίδα μπαίνουν μόνο υποδομές με την ίδια διεύθυνση (π.χ. Γκράβα, Γουδή) */
+const addrKey = a => a.split(", Τ.Κ.")[0].split(",")[0].trim().toLowerCase()
+  .normalize("NFD").replace(/[\u0300-\u036f]/g,"");
 const dist = (a,b) => map.distance(a,b);
 const sites = [];
 DATA.forEach(d => {
-  const s = sites.find(s => dist(s.p,d.p)<150 && (d.c!=="open" || s.items.some(i=>i.c!=="open")));
-  if (s) s.items.push(d); else sites.push({p:d.p, items:[d]});
+  const k = addrKey(d.a);
+  const s = sites.find(s => s.key===k && dist(s.p,d.p)<200);
+  if (s) s.items.push(d); else sites.push({p:d.p, key:k, items:[d]});
 });
 
 const layer = L.layerGroup().addTo(map);
